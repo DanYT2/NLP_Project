@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project-specific
+models/
+wandb/
+mlruns/
+figures/*
+!figures/.gitkeep
+*.npy
+.ipynb_checkpoints/
