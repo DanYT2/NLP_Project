@@ -49,3 +49,24 @@ def train_word2vec(
         workers=workers,
         epochs=epochs,
     )
+
+
+def mean_pool(
+    token_lists: Sequence[Sequence[str]],
+    model: Word2Vec,
+) -> np.ndarray:
+    """Average the token vectors for each document.
+
+    OOV tokens are skipped. Documents with zero in-vocab tokens get a
+    zero vector — the alternative (NaN propagation) breaks downstream
+    training, and a zero vector at least keeps batch shapes consistent.
+    """
+    dim = model.vector_size
+    out = np.zeros((len(token_lists), dim), dtype=np.float32)
+    wv = model.wv
+    for i, toks in enumerate(token_lists):
+        vecs = [wv[t] for t in toks if t in wv.key_to_index]
+        if vecs:
+            out[i] = np.mean(vecs, axis=0)
+        # else: leave as zeros (already initialised).
+    return out
