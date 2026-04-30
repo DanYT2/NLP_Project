@@ -31,11 +31,31 @@ These come from the assignment PDF and must be respected when generating code or
 
 ## Tooling
 
-- Python **3.13** (pinned in `.python-version`). Project metadata is in `pyproject.toml`; no `[build-system]` and no lockfile yet → managed with `uv`.
-- Run the entry point: `uv run python main.py`
-- Add a dependency: `uv add <pkg>` (this creates `uv.lock` on first use; commit it).
-- No tests, linter, or formatter are configured yet. If you add one, wire it through `uv` (e.g. `uv run pytest`, `uv run ruff check`) and update this file.
+- Python **3.13** (pinned in `.python-version`). Managed with `uv`; lock file is `uv.lock` (committed).
+- Add a dependency: `uv add <pkg>` (or `uv add --dev <pkg>` for test-only).
+- Run the test suite: `uv run pytest` (37 tests, ~7s incl. the slow data-fetch ones).
+- Open the notebooks: `uv run jupyter lab`.
+- One-time setup before first notebook run: `uv run python scripts/setup_nltk.py` (downloads NLTK English stopwords).
 
-## Repo layout
+## Repo layout (Q1)
 
-The repo is currently a stub (`main.py` is a placeholder). Real structure will grow per question — keep notebooks, training scripts, and saved artifacts scoped to the relevant question's branch/folder rather than scattering them at the root.
+```
+src/nlp_project/   # reusable package: data, embeddings, vectorizers, model, train, eval, viz
+tests/             # pytest suite (slow tests gated by -m slow)
+scripts/           # one-time setup scripts (e.g. NLTK download)
+notebooks/         # q1a–q1d notebooks; thin wrappers around src/nlp_project
+figures/           # static plots referenced by the report (gitkeep'd; outputs gitignored)
+models/            # word2vec checkpoints (gitignored)
+docs/superpowers/  # spec and implementation plan for Q1
+```
+
+## Q1 status
+
+Foundation package + tests are in place on `ft-qn-1`. Notebooks are drafted but not executed — they need the user's W&B credentials and a few minutes of CPU to run. To run them:
+
+1. `wandb login` (one-time, uses your W&B account).
+2. `uv run jupyter lab` and execute Q1a → Q1b → Q1c → Q1d in order.
+3. Q1d's "comparison table" cell needs the accuracy/F1 numbers from Q1b and Q1c pasted in before re-running.
+4. Paste the resulting W&B project URL into the line below.
+
+- W&B project for Q1 runs: _to be filled in once notebooks have been run_
