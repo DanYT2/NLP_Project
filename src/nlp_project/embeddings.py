@@ -70,3 +70,24 @@ def mean_pool(
             out[i] = np.mean(vecs, axis=0)
         # else: leave as zeros (already initialised).
     return out
+
+
+def mean_max_pool(
+    token_lists: Sequence[Sequence[str]],
+    model: Word2Vec,
+) -> np.ndarray:
+    """Concatenate the mean and element-wise max of token vectors.
+
+    This is the Q1d "bonus experiment": same network, richer fixed-size
+    representation. Output dimension is ``2 * vector_size``.
+    """
+    dim = model.vector_size
+    out = np.zeros((len(token_lists), 2 * dim), dtype=np.float32)
+    wv = model.wv
+    for i, toks in enumerate(token_lists):
+        vecs = [wv[t] for t in toks if t in wv.key_to_index]
+        if vecs:
+            stacked = np.stack(vecs)  # (n_tokens, dim)
+            out[i, :dim] = stacked.mean(axis=0)
+            out[i, dim:] = stacked.max(axis=0)
+    return out

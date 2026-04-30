@@ -62,3 +62,30 @@ def test_mean_pool_zero_vector_for_all_oov(tiny_corpus) -> None:
     X = embeddings.mean_pool([["xyzzy", "qux", "frobnicate"]], model)
     assert X.shape == (1, 8)
     np.testing.assert_array_equal(X[0], np.zeros(8, dtype=np.float32))
+
+
+def test_mean_max_pool_shape_is_double(tiny_corpus) -> None:
+    model = embeddings.train_word2vec(tiny_corpus, epochs=3, vector_size=8, min_count=1)
+    X = embeddings.mean_max_pool([["cat", "dog"]], model)
+    assert X.shape == (1, 16)  # 2 * vector_size
+
+
+def test_mean_max_pool_first_half_matches_mean_pool(tiny_corpus) -> None:
+    model = embeddings.train_word2vec(tiny_corpus, epochs=3, vector_size=8, min_count=1)
+    docs = [["cat", "dog"]]
+    X_mean = embeddings.mean_pool(docs, model)
+    X_concat = embeddings.mean_max_pool(docs, model)
+    np.testing.assert_allclose(X_concat[0, :8], X_mean[0], rtol=1e-5)
+
+
+def test_mean_max_pool_second_half_is_elementwise_max(tiny_corpus) -> None:
+    model = embeddings.train_word2vec(tiny_corpus, epochs=3, vector_size=8, min_count=1)
+    expected_max = np.maximum(model.wv["cat"], model.wv["dog"])
+    X = embeddings.mean_max_pool([["cat", "dog"]], model)
+    np.testing.assert_allclose(X[0, 8:], expected_max, rtol=1e-5)
+
+
+def test_mean_max_pool_zero_for_all_oov(tiny_corpus) -> None:
+    model = embeddings.train_word2vec(tiny_corpus, epochs=3, vector_size=8, min_count=1)
+    X = embeddings.mean_max_pool([["xyzzy"]], model)
+    np.testing.assert_array_equal(X[0], np.zeros(16, dtype=np.float32))
