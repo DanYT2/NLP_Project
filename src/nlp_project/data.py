@@ -6,9 +6,11 @@ sklearn's bundled mirror via :func:`load_20ng`.
 
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Sequence
 
 import numpy as np
+from gensim.utils import simple_preprocess
 from sklearn.datasets import fetch_20newsgroups
 
 
@@ -40,3 +42,50 @@ def load_20ng(
         np.asarray(test.target),
         list(train.target_names),
     )
+
+
+@lru_cache(maxsize=1)
+def _default_stopwords() -> frozenset[str]:
+    """Load NLTK English stopwords once. Requires `scripts/setup_nltk.py`
+    to have been run, otherwise raises a clear LookupError.
+    """
+    from nltk.corpus import stopwords  # local import keeps the package
+                                       # importable without nltk data.
+    return frozenset(stopwords.words("english"))
+
+
+def preprocess(
+    docs: Sequence[str],
+    drop_stopwords: bool = True,
+    stopwords: Sequence[str] | set[str] | None = None,
+    min_token_len: int = 3,
+) -> list[list[str]]:
+    """Tokenize, lowercase, drop short tokens, optionally drop stopwords.
+
+    Parameters
+    ----------
+    docs:
+        Raw document strings.
+    drop_stopwords:
+        If True (default), filter tokens that appear in ``stopwords``.
+        Disable this when feeding tokens to word2vec — embeddings learn
+        better when frequent function words remain in the context window.
+    stopwords:
+        Override the default NLTK English stopword list. Pass a set in
+        tests so they don't depend on NLTK's data being downloaded.
+    min_token_len:
+        Drop tokens shorter than this (default 3). gensim's
+        ``simple_preprocess`` already lowercases and strips punctuation.
+    """
+    if drop_stopwords:
+        sw = set(stopwords) if stopwords is not None else set(_default_stopwords())
+    else:
+        sw = set()
+
+    out: list[list[str]] = []
+    for doc in docs:
+        toks = simple_preprocess(doc, min_len=min_token_len)
+        if sw:
+            toks = [t for t in toks if t not in sw]
+        out.append(toks)
+    return out

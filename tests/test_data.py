@@ -39,3 +39,36 @@ def test_load_20ng_strips_headers() -> None:
 def test_load_20ng_returns_arrays_not_lists_for_labels() -> None:
     _, train_labels, *_ = data.load_20ng()
     assert isinstance(train_labels, np.ndarray)
+
+
+def test_preprocess_lowercases_and_tokenizes() -> None:
+    docs = ["Hello WORLD foo"]
+    out = data.preprocess(docs, drop_stopwords=False, stopwords=set())
+    assert out == [["hello", "world", "foo"]]
+
+
+def test_preprocess_drops_short_tokens() -> None:
+    # gensim.simple_preprocess drops tokens with len < min_len (default 2);
+    # we additionally enforce len >= 3.
+    docs = ["a be cat dog"]
+    out = data.preprocess(docs, drop_stopwords=False, stopwords=set())
+    assert out == [["cat", "dog"]]
+
+
+def test_preprocess_drops_stopwords_when_flag_true() -> None:
+    docs = ["the cat sat on the mat"]
+    out = data.preprocess(docs, drop_stopwords=True, stopwords={"the", "sat", "mat"})
+    assert out == [["cat"]]
+
+
+def test_preprocess_keeps_stopwords_when_flag_false() -> None:
+    docs = ["the cat sat"]
+    out = data.preprocess(docs, drop_stopwords=False, stopwords={"the"})
+    assert out == [["the", "cat", "sat"]]
+
+
+def test_preprocess_returns_list_of_lists() -> None:
+    out = data.preprocess(["one two three", "four five six"], drop_stopwords=False, stopwords=set())
+    assert isinstance(out, list)
+    assert all(isinstance(doc, list) for doc in out)
+    assert len(out) == 2
