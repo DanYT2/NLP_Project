@@ -12,6 +12,7 @@ from typing import Sequence
 import numpy as np
 from gensim.utils import simple_preprocess
 from sklearn.datasets import fetch_20newsgroups
+from sklearn.model_selection import train_test_split
 
 
 def load_20ng(
@@ -89,3 +90,23 @@ def preprocess(
             toks = [t for t in toks if t not in sw]
         out.append(toks)
     return out
+
+
+def train_val_split(
+    docs: Sequence[str] | list[list[str]],
+    labels: np.ndarray,
+    val_frac: float = 0.1,
+    seed: int = 42,
+) -> tuple[list, np.ndarray, list, np.ndarray]:
+    """Stratified train/validation split.
+
+    Works on either a list of raw strings or a list of token lists.
+    """
+    train_docs, val_docs, train_labels, val_labels = train_test_split(
+        list(docs),
+        labels,
+        test_size=val_frac,
+        stratify=labels,
+        random_state=seed,
+    )
+    return train_docs, train_labels, val_docs, val_labels

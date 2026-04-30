@@ -72,3 +72,36 @@ def test_preprocess_returns_list_of_lists() -> None:
     assert isinstance(out, list)
     assert all(isinstance(doc, list) for doc in out)
     assert len(out) == 2
+
+
+def test_train_val_split_sizes() -> None:
+    docs = [f"doc {i}" for i in range(100)]
+    labels = np.array([i % 5 for i in range(100)])  # 20 per class
+    train_docs, train_labels, val_docs, val_labels = data.train_val_split(
+        docs, labels, val_frac=0.2, seed=42,
+    )
+    assert len(train_docs) == 80
+    assert len(val_docs) == 20
+    assert len(train_labels) == 80
+    assert len(val_labels) == 20
+
+
+def test_train_val_split_is_reproducible() -> None:
+    docs = [f"doc {i}" for i in range(50)]
+    labels = np.array([i % 2 for i in range(50)])
+    a = data.train_val_split(docs, labels, val_frac=0.2, seed=42)
+    b = data.train_val_split(docs, labels, val_frac=0.2, seed=42)
+    assert a[0] == b[0]
+    np.testing.assert_array_equal(a[1], b[1])
+
+
+def test_train_val_split_is_stratified() -> None:
+    docs = [f"doc {i}" for i in range(100)]
+    labels = np.array([i % 5 for i in range(100)])
+    _, train_labels, _, val_labels = data.train_val_split(
+        docs, labels, val_frac=0.2, seed=42,
+    )
+    # Each class should appear in val proportionally (4 of 20 = 20%).
+    for c in range(5):
+        assert (val_labels == c).sum() == 4
+        assert (train_labels == c).sum() == 16
