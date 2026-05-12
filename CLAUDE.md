@@ -34,6 +34,9 @@ These come from the assignment PDF and must be respected when generating code or
 - Python **3.13** (pinned in `.python-version`). Managed with `uv`; lock file is `uv.lock` (committed).
 - Add a dependency: `uv add <pkg>` (or `uv add --dev <pkg>` for test-only).
 - Run the test suite: `uv run pytest` (37 tests, ~7s incl. the slow data-fetch ones).
+  - Single file / test: `uv run pytest tests/test_train.py` or `uv run pytest tests/test_train.py::test_name`.
+  - Skip the network/training-heavy ones: `uv run pytest -m "not slow"`. Run only the slow ones: `-m slow`.
+  - Parallelize: `uv run pytest -n auto` (pytest-xdist is in the dev group).
 - Open the notebooks: `uv run jupyter lab`.
 - One-time setup before first notebook run: `uv run python scripts/setup_nltk.py` (downloads NLTK English stopwords).
 
@@ -49,6 +52,17 @@ models/            # word2vec checkpoints (gitignored)
 docs/superpowers/  # spec and implementation plan for Q1
 ```
 
+## Architecture notes
+
+A few things span multiple files and are easier to internalize up front than to rediscover:
+
+- **Package vs. notebook split.** All non-trivial logic lives in `src/nlp_project/`. Notebooks are thin orchestrators — they wire functions together, log to W&B, and save figures. New logic goes in the package with a test; do **not** grow logic inside `.ipynb` cells.
+- **Determinism is centralized.** `nlp_project.set_seed()` (in `src/nlp_project/__init__.py`) is the single entry point that seeds Python `random`, NumPy, `PYTHONHASHSEED`, and PyTorch from `SEED = 42`. `tests/conftest.py` runs it via an `autouse` fixture, so every test starts from the same RNG state. Word2vec has its own `seed=` kwarg (passed explicitly in `embeddings.train_word2vec`) and is pinned to `workers=1` because gensim's multi-threaded training is non-deterministic — required for the 1-epoch vs many-epoch comparison to be meaningful.
+- **Two non-obvious preprocessing gotchas** baked into `data.py` / `embeddings.py`:
+  1. `load_20ng(remove=True)` is the default and the *correct* setting — leaving headers/footers/quotes in leaks the label (spec §3). Don't flip this without a good reason.
+  2. `preprocess(..., drop_stopwords=False)` for word2vec input; `drop_stopwords=True` for TF-IDF / classifier input. Word2vec learns better when frequent function words remain in the context window.
+- **Training loop is intentionally hand-rolled** (`train.py`) — no Lightning/Trainer. It does early stopping on val loss with `patience=5` and restores best-epoch weights before returning. `wandb_run` is optional so tests can call `train(...)` without a W&B session.
+
 ## Q1 status
 
 Foundation package + tests are in place on `ft-qn-1`. Notebooks are drafted but not executed — they need the user's W&B credentials and a few minutes of CPU to run. To run them:
@@ -58,4 +72,4 @@ Foundation package + tests are in place on `ft-qn-1`. Notebooks are drafted but 
 3. Q1d's "comparison table" cell needs the accuracy/F1 numbers from Q1b and Q1c pasted in before re-running.
 4. Paste the resulting W&B project URL into the line below.
 
-- W&B project for Q1 runs: _to be filled in once notebooks have been run_
+- W&B project for Q1 runs: <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
