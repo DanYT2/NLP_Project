@@ -91,3 +91,21 @@ To run the Q2 notebooks:
 5. If notebooks need to be regenerated from `scripts/build_q2_notebooks.py`, do that *before* re-executing — running the script overwrites the executed `.ipynb`s.
 
 - W&B project for Q2 runs: same as Q1 (group `q2`) — <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
+
+## Q3 status
+
+`ft-qn-3` branch. Foundation package + tests are in place; the single notebook is scaffolded but not executed (W&B credentials + MPS compute required, ~45–90 min total). Q3 runs a two-stage pipeline: domain-adaptive MLM pretraining on the 20NG train texts, then classification fine-tune from the resulting checkpoint using Q2b's hyperparameters verbatim — see `docs/superpowers/plans/2026-05-18-q3-mlm-pretrain.md` for the design rationale.
+
+- New module: `src/nlp_project/mlm_pretrain.py` — `build_mlm_dataset`, `make_mlm_training_args`, `run_mlm_pretrain` (HF Trainer wrapper around `BertForMaskedLM` + `DataCollatorForLanguageModeling`, MPS-safe flags, internal 90/10 MLM-eval split independent of the classification val set).
+- New tests: `tests/test_mlm_pretrain.py` (4 fast + 1 slow smoke, all green).
+- Stage B reuses `bert_train.run_finetune` verbatim — only the encoder init changes vs Q2b.
+
+To run the Q3 notebook:
+
+1. `wandb login` (one-time, same project as Q1/Q2).
+2. `uv run jupyter lab notebooks/q3_mlm_then_finetune.ipynb`.
+3. Execute all cells top to bottom. Stage A (MLM) ≈ 30–60 min on MPS; Stage B (classification) ≈ 15–30 min.
+4. Stage A writes `models/q3_results/mlm_ckpt/` (gitignored) + `q3_pretrain_log.json`. Stage B writes `q3_finetune_results.json`. Section 5 reads `models/q2_results/q2b_baseline.json` for the comparison plots.
+5. If the notebook needs to be regenerated from `scripts/build_q3_notebook.py`, do that *before* re-executing — running the script overwrites the executed `.ipynb`.
+
+- W&B project for Q3 runs: same as Q1/Q2 (group `q3`) — <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
