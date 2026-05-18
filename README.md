@@ -1,6 +1,7 @@
 # NLP_Project
 HSLU NLP Project
 
+**Q2 (BERT fine-tuning) foundation is in place** on `ft-qn-2`: `bert_data.py` + `bert_train.py` (HF Trainer wrapper, MPS-safe), notebooks `q2a`–`q2d` scaffolded, 55+ tests green. See `docs/superpowers/plans/2026-05-15-q2-bert-finetune.md` for the plan and `CLAUDE.md` § "Q2 status" for the run-the-notebooks recipe.
 
 Q1 foundation is complete. Branch ft-qn-1 now has 18 commits and a 37-test pytest suite that passes end-to-end.
                                                                                                                               
