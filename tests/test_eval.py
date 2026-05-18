@@ -52,3 +52,39 @@ def test_plot_confusion_writes_a_png(tmp_path: Path) -> None:
     out = tmp_path / "cm.png"
     ev.plot_confusion(cm, label_names=["x", "y"], save_path=out)
     assert out.exists() and out.stat().st_size > 0
+
+
+def test_metrics_from_predictions_perfect() -> None:
+    y_true = np.array([0, 1, 2, 0, 1, 2])
+    y_pred = np.array([0, 1, 2, 0, 1, 2])
+    m = ev.metrics_from_predictions(y_true, y_pred, label_names=["a", "b", "c"])
+    assert m["accuracy"] == 1.0
+    assert m["macro_f1"] == 1.0
+    assert m["per_class_f1"].shape == (3,)
+    assert np.all(m["per_class_f1"] == 1.0)
+    assert m["confusion_matrix"].shape == (3, 3)
+    assert m["confusion_matrix"].trace() == 6
+
+
+def test_metrics_from_predictions_all_wrong() -> None:
+    y_true = np.array([1, 1, 2, 2])
+    y_pred = np.array([0, 0, 0, 0])
+    m = ev.metrics_from_predictions(y_true, y_pred, label_names=["a", "b", "c"])
+    assert m["accuracy"] == 0.0
+    assert m["macro_f1"] == 0.0
+    # The unseen class should still have a slot in per_class_f1
+    assert m["per_class_f1"].shape == (3,)
+
+
+def test_metrics_from_predictions_accepts_lists() -> None:
+    # Trainer.predict() yields numpy; some callers pass Python lists.
+    m = ev.metrics_from_predictions([0, 1], [0, 1], label_names=["a", "b"])
+    assert m["accuracy"] == 1.0
+
+
+def test_evaluate_uses_metrics_helper_shape() -> None:
+    # Regression: evaluate()'s return dict still has the same 4 keys.
+    model = _ConstantModel(num_classes=3, cls=2)
+    loader = _loader([2, 2, 1])
+    metrics = ev.evaluate(model, loader, label_names=["a", "b", "c"], device="cpu")
+    assert set(metrics.keys()) == {"accuracy", "macro_f1", "per_class_f1", "confusion_matrix"}
