@@ -227,3 +227,7 @@ figures/*
 !figures/.gitkeep
 *.npy
 .ipynb_checkpoints/
+
+# Q3 runtime outputs (MLM checkpoint + serialized results).
+# `models/` is already gitignored above; this comment is here so future
+# maintainers know where Q3 writes its artifacts: models/q3_results/.
