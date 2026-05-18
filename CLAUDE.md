@@ -73,3 +73,21 @@ Foundation package + tests are in place on `ft-qn-1`. Notebooks are drafted but 
 4. Paste the resulting W&B project URL into the line below.
 
 - W&B project for Q1 runs: <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
+
+## Q2 status
+
+`ft-qn-2` branch. Foundation package + tests are in place; notebooks scaffolded but not executed (W&B credentials + MPS compute required). Q2 uses HuggingFace `Trainer` (not the hand-rolled Q1 loop) — see `docs/superpowers/plans/2026-05-15-q2-bert-finetune.md` for the design rationale.
+
+- New modules: `src/nlp_project/bert_data.py` (tokenization + tri-split builder; reuses `data.train_val_split(seed=42)` for Q1↔Q2 val-index parity) and `src/nlp_project/bert_train.py` (HF Trainer wrapper with MPS-safe flags, encoder-freeze for the linear probe).
+- New tests: `tests/test_bert_data.py`, `tests/test_bert_train.py` (full suite at 55+ green).
+- `eval.py` refactored: `metrics_from_predictions(y_true, y_pred, label_names)` is now the single source of truth for accuracy/macro-F1/per-class F1/CM; both Q1 and Q2 use it.
+
+To run the Q2 notebooks:
+
+1. `wandb login` (one-time, same project as Q1).
+2. `uv run jupyter lab` and execute Q2a → Q2b → Q2c → Q2d in order.
+3. Q2a picks `max_length` from the token-length histogram (default 256).
+4. Q2c writes its sweep to `models/q2_results/q2c_sweep.json`; Q2d reads it.
+5. If notebooks need to be regenerated from `scripts/build_q2_notebooks.py`, do that *before* re-executing — running the script overwrites the executed `.ipynb`s.
+
+- W&B project for Q2 runs: same as Q1 (group `q2`) — <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
