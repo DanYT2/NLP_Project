@@ -22,6 +22,13 @@ dependencies = [
     "weave>=0.52.39",
 ]
 
+[project.optional-dependencies]
+# Q4 (Llama-3 zero/few-shot) needs 4-bit quantization on CUDA hosts.
+# bitsandbytes has no macOS wheel, so it stays opt-in: install with
+# `uv sync --extra llm` on the 3060 laptop / Colab. macOS dev box can
+# `uv sync` as usual and skip Q4.
+llm = ["bitsandbytes>=0.43"]
+
 [dependency-groups]
 dev = [
     "pytest>=9.0.3",
