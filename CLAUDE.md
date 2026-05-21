@@ -109,3 +109,23 @@ To run the Q3 notebook:
 5. If the notebook needs to be regenerated from `scripts/build_q3_notebook.py`, do that *before* re-executing — running the script overwrites the executed `.ipynb`.
 
 - W&B project for Q3 runs: same as Q1/Q2 (group `q3`) — <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
+
+## Q4 status
+
+`ft-q-4` branch. Foundation package + tests are in place; the single notebook is scaffolded but not executed (CUDA GPU + Llama-3 weights required, ~1 hour total). Q4 evaluates a frozen `meta-llama/Llama-3.2-3B-Instruct` (4-bit nf4 via `bitsandbytes`) under three prompt conditions — see `docs/superpowers/plans/2026-05-20-q4-llama-zero-few-shot.md` if/when a long-form design doc is written; for now the plan lives at `/Users/dan/.claude/plans/answer-the-4th-question-expressive-lamport.md`.
+
+- New module: `src/nlp_project/llama_classify.py` — `load_llama`, `build_prompt`, `select_demos`, `classify_one`, `classify_batch`. 4-bit nf4 on CUDA + bf16/fp32 fallback elsewhere; greedy decoding; generative-output label parsing with substring + Levenshtein fallback and an `invalid_rate` diagnostic.
+- New tests: `tests/test_llama_classify.py` (8 fast + 1 slow smoke).
+- New optional extra in `pyproject.toml`: `[project.optional-dependencies] llm = ["bitsandbytes>=0.43"]`. Install with `uv sync --extra llm` on a CUDA host. macOS dev box should keep using plain `uv sync` (bitsandbytes has no macOS wheel).
+- Q4 runs on a **stratified 200-doc subsample** of the test set (10/class, seed 42) — 7 532 docs at ~2–3 s/doc would be unreasonable. This is a deliberate limitation, disclosed in the discussion section.
+
+To run the Q4 notebook:
+
+1. (Local 3060) `uv sync --extra llm`; `wandb login`; `huggingface-cli login` (Llama-3.2 is gated — request access on the model page first).
+2. (Colab) open the notebook; cell 1 installs everything, clones the repo, and prompts for both logins interactively.
+3. `uv run jupyter lab notebooks/q4_llama_zero_few_shot.ipynb` (local) or open in Colab.
+4. Execute all cells top to bottom. Three runs (zero-shot, k=1/class, k=3/class) ≈ 10/15/25 min on the 3060 respectively.
+5. Outputs land in `models/q4_results/q4_{zero_shot,few_shot_1pc,few_shot_3pc}.json` and `figures/q4_*.png`. Section 9 reads `models/q2_results/q2b_baseline.json` for the comparison plot.
+6. If the notebook needs to be regenerated from `scripts/build_q4_notebook.py`, do that *before* re-executing — running the script overwrites the executed `.ipynb`.
+
+- W&B project for Q4 runs: same as Q1/Q2/Q3 (group `q4`) — <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
