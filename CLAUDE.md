@@ -129,3 +129,22 @@ To run the Q4 notebook:
 6. If the notebook needs to be regenerated from `scripts/build_q4_notebook.py`, do that *before* re-executing — running the script overwrites the executed `.ipynb`.
 
 - W&B project for Q4 runs: same as Q1/Q2/Q3 (group `q4`) — <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
+
+## Q-bonus status
+
+`ft-bonus` branch. **Bonus task**: QLoRA fine-tune of Llama-3.2-3B-Instruct on 20 Newsgroups, evaluated on the full test set *and* the Q4 200-doc subset. Self-contained Colab notebook scaffolded but not executed (Colab A100 + Llama-3 weights required, ~70-90 min wall-clock).
+
+- The notebook (`notebooks/qbonus_llama_qlora_finetune.ipynb`) is **self-contained** — no imports from `src/nlp_project/`. Every helper (seeding, data load, train/val split, metrics, plotting, dataset wrapper) is inlined so the notebook runs on Colab without cloning the repo. See `scripts/build_qbonus_notebook.py` for the builder.
+- Approach: `LlamaForSequenceClassification` (4-bit nf4 base) + LoRA on `{q,k,v,o}_proj` with `modules_to_save=['score']` (the freshly-initialised classification head needs full-precision training, not LoRA — most common silent-failure mode for QLoRA-classification).
+- Two-run sweep: `r=16, lr=2e-4` (baseline) and `r=32, lr=1e-4` (higher capacity, lower LR); winner picked by val macro-F1.
+- Two final evals on the winning adapter: full 7 532-doc test set (vs Q1/Q2/Q3) and the byte-identical Q4 200-doc subset (vs zero/few-shot).
+
+To run the Q-bonus notebook:
+
+1. Open `notebooks/qbonus_llama_qlora_finetune.ipynb` on a Colab A100 (or local 24 GB+ CUDA box).
+2. Cell 1 installs runtime deps (`transformers, accelerate, bitsandbytes, peft, wandb, ...`) and prompts for both HF and W&B logins. Llama-3.2 is gated — request access on the model page first.
+3. Execute all cells top to bottom. Two LoRA runs ≈ 30-35 min each on A100; two final evals ≈ 5 min.
+4. Outputs land in `models/qbonus_results/qbonus_qlora_{full_test,q4subset}.json` + `qbonus_sweep_summary.json`, and `figures/qbonus_{confusion_full,comparison_bars,per_class_delta}.png`. Section 14 reads `models/q4_results/q4_*.json` (and optionally Q2/Q3 JSONs) for the cross-question comparison plot.
+5. If the notebook needs to be regenerated from `scripts/build_qbonus_notebook.py`, do that *before* re-executing — running the script overwrites the executed `.ipynb`.
+
+- W&B project for Q-bonus runs: same as Q1/Q2/Q3/Q4 (group `qbonus`) — <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
