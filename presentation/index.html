@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>20 Newsgroups · A Four-Method Study — HSLU NALAPRO</title>
+<title>The Newsgroups Review · Vol. I, No. 1 — HSLU NALAPRO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=UnifrakturCook:wght@700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="vendor/plotly.min.js"></script>
 <style>
   :root {
@@ -154,6 +154,189 @@
   }
   p.lead em { color: var(--accent); font-style: italic; font-family: var(--serif); font-size: 22px; }
   em { font-style: italic; }
+
+  /* ====================================================================== *
+   * Newspaper / broadsheet styling
+   * ====================================================================== */
+
+  /* --- Masthead ---------------------------------------------------------- */
+  .masthead {
+    grid-column: 1 / -1;
+    padding: 22px 64px 18px;
+    border-bottom: 4px double var(--text-dim);
+    background:
+      linear-gradient(180deg, rgba(224,178,92,0.04), transparent 60%),
+      var(--bg);
+    position: relative;
+  }
+  .masthead::before {
+    content: '';
+    position: absolute; left: 64px; right: 64px;
+    top: 14px; height: 1px; background: var(--text-mute); opacity: 0.6;
+  }
+  .masthead::after {
+    content: '';
+    position: absolute; left: 64px; right: 64px;
+    bottom: -8px; height: 1px; background: var(--text-mute); opacity: 0.6;
+  }
+  .masthead .strip-top {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.24em;
+    text-transform: uppercase; color: var(--text-mute);
+    padding-bottom: 14px;
+  }
+  .masthead .strip-top span em {
+    font-family: var(--serif); font-style: italic; text-transform: none;
+    letter-spacing: 0; color: var(--accent); font-size: 13px;
+  }
+  .masthead .title {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    text-align: center;
+    font-size: clamp(56px, 7vw, 96px);
+    line-height: 0.95; letter-spacing: -0.02em;
+    color: var(--text);
+    padding: 4px 0 6px;
+  }
+  .masthead .title .ampersand {
+    font-style: italic; color: var(--accent); padding: 0 6px;
+  }
+  .masthead .subtitle {
+    text-align: center; font-family: var(--mono);
+    font-size: 10.5px; letter-spacing: 0.42em;
+    text-transform: uppercase; color: var(--text-dim);
+    padding: 8px 0 0;
+  }
+  .masthead .strip-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 14px; padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--text-mute);
+  }
+  .masthead .strip-bottom .center {
+    font-family: var(--serif); font-style: italic; font-size: 14px;
+    letter-spacing: 0; text-transform: none; color: var(--text-dim);
+  }
+  .masthead .ornament {
+    text-align: center; color: var(--accent);
+    font-family: var(--serif); font-size: 18px; letter-spacing: 0.6em;
+    padding: 10px 0 0; opacity: 0.7;
+  }
+
+  /* --- Kicker · headline · deck · byline pattern ------------------------ */
+  .kicker {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.38em;
+    text-transform: uppercase; color: var(--accent); font-weight: 600;
+    display: inline-flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+  }
+  .kicker .sec-no {
+    font-family: var(--serif); font-style: italic; font-size: 16px;
+    letter-spacing: 0; color: var(--accent); text-transform: none; font-weight: 400;
+  }
+  .kicker .filed {
+    margin-left: auto; color: var(--text-mute); font-weight: 400;
+    letter-spacing: 0.18em;
+  }
+  .deck {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    font-size: 22px; line-height: 1.32; color: var(--text-dim);
+    max-width: 60ch; margin: 4px 0 10px;
+    padding-left: 0;
+  }
+  .deck em { color: var(--accent); }
+  .byline {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--text-mute);
+    margin: 6px 0 22px; display: flex; align-items: center; gap: 14px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0;
+  }
+  .byline .by { color: var(--text-dim); }
+  .byline .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-mute); }
+
+  /* --- Drop cap on first paragraph after deck/byline -------------------- */
+  p.lede {
+    color: var(--text); font-size: 16px; max-width: 70ch;
+    line-height: 1.62; font-weight: 400;
+  }
+  p.lede::first-letter {
+    font-family: var(--serif); font-weight: 400; font-style: italic;
+    color: var(--accent);
+    float: left; font-size: 72px; line-height: 0.85;
+    padding: 6px 12px 0 0; margin: 4px 0 0 0;
+  }
+
+  /* --- Section divider ornament ----------------------------------------- */
+  section + section { border-top: none; }
+  section + section::before {
+    content: '⁂';
+    display: block; text-align: center;
+    font-family: var(--serif); font-size: 18px; letter-spacing: 0.6em;
+    color: var(--accent); opacity: 0.55;
+    padding: 6px 0 28px;
+    position: relative;
+  }
+  section + section::after {
+    content: ''; display: block;
+  }
+
+  /* Replace top section border with a double rule */
+  .rule-double {
+    height: 1px; background: var(--text-mute);
+    position: relative; margin: 0 0 28px;
+    opacity: 0.55;
+  }
+  .rule-double::after {
+    content: ''; position: absolute; left: 0; right: 0; top: 4px;
+    height: 1px; background: var(--text-mute); opacity: 0.55;
+  }
+
+  /* --- Multi-column lead paragraph -------------------------------------- */
+  .columns-2 {
+    column-count: 2; column-gap: 38px; column-rule: 1px solid var(--border);
+    max-width: 78ch;
+  }
+  .columns-2 p { max-width: none; margin-top: 0; }
+  @media (max-width: 980px) {
+    .columns-2 { column-count: 1; }
+  }
+
+  /* --- Italic newspaper captions ---------------------------------------- */
+  .figcap, .chart-card .figcap {
+    font-style: italic; font-family: var(--serif); font-size: 14px;
+    line-height: 1.5; color: var(--text-dim);
+    border-top: 1px solid var(--border); padding-top: 8px; margin-top: 10px;
+  }
+  .figcap .mono { font-family: var(--mono); font-style: normal; font-size: 12px; }
+
+  /* --- "Continued" / "Story below" cue --------------------------------- */
+  .jump {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--text-mute);
+    margin-top: 10px;
+  }
+  .jump::after {
+    content: '↓'; font-family: var(--serif); color: var(--accent);
+    font-size: 13px;
+  }
+
+  /* --- Sidebar restyled as "In this issue" index ------------------------ */
+  nav.side .index-label {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--text-mute); font-weight: 500;
+    margin: 26px 0 6px; padding-top: 14px; border-top: 1px solid var(--border);
+  }
+  nav.side ol { padding-top: 4px; }
+
+  /* Slightly tighter h1/h2 to feel like printed headlines */
+  h1 { letter-spacing: -0.024em; line-height: 0.98; }
+  h2 { letter-spacing: -0.02em; line-height: 1.02; }
 
   /* ---------- generic UI primitives ---------- */
   .card {
@@ -427,26 +610,44 @@
 </style>
 </head>
 <body>
+
+<header class="masthead">
+  <div class="strip-top">
+    <span>Established <em>MMXXVI</em></span>
+    <span>An Independent Quarterly · Single Print Run</span>
+    <span>Price: One Deadline</span>
+  </div>
+  <div class="title">The Newsgroups<span class="ampersand">&amp;</span>Review</div>
+  <div class="subtitle">A Quarterly of Machine Reading · Classification &amp; Representation</div>
+  <div class="ornament">⁂ ⁂ ⁂</div>
+  <div class="strip-bottom">
+    <span>Vol. I · No. 1</span>
+    <span class="center">&ldquo;Twenty topics, four methods, one student.&rdquo;</span>
+    <span>Lucerne · 21 May 2026</span>
+  </div>
+</header>
+
 <div class="shell">
 
 <nav class="side">
   <div class="brand">
-    20 Newsgroups<br/><small>HSLU · NALAPRO · 2026</small>
+    The Newsgroups<br/><small>Vol. I · No. 1 · 2026</small>
   </div>
+  <div class="index-label">In this issue</div>
   <ol id="nav">
-    <li><a href="#problem">Problem</a></li>
-    <li><a href="#dataset">Dataset</a></li>
+    <li><a href="#problem">Front page</a></li>
+    <li><a href="#dataset">The dataset</a></li>
     <li><a href="#q1">Q1 · Shallow MLP</a></li>
     <li><a href="#q2">Q2 · BERT fine-tune</a></li>
     <li><a href="#q3">Q3 · MLM + fine-tune</a></li>
     <li><a href="#q4">Q4 · Llama-3 prompting</a></li>
     <li><a href="#qbonus">Q-bonus · QLoRA</a></li>
-    <li><a href="#compare">Cross-question</a></li>
-    <li><a href="#lessons">Lessons learnt</a></li>
-    <li><a href="#future">Future work</a></li>
+    <li><a href="#compare">The story so far</a></li>
+    <li><a href="#lessons">Editorial</a></li>
+    <li><a href="#future">Coming next issue</a></li>
   </ol>
   <div class="keys">
-    <kbd>↑</kbd> <kbd>↓</kbd> · navigate sections<br/>
+    <kbd>↑</kbd> <kbd>↓</kbd> · turn the page<br/>
     Hover charts for details
   </div>
 </nav>
@@ -455,11 +656,20 @@
 
 <!-- ===================================================================== -->
 <section id="problem">
-  <div class="eyebrow">Problem statement</div>
+  <div class="kicker"><span class="sec-no">I.</span> Front page · The problem <span class="filed">Filed 21 May 2026</span></div>
   <h1>Twenty topics, four learning regimes,<br/>one question: <em>how much representation matters.</em></h1>
-  <p class="lead">
-    The 20 Newsgroups corpus is a small but adversarial topic-classification benchmark — twenty classes, several of which are near-duplicates (<span class="mono">comp.sys.ibm.pc.hardware</span> vs <span class="mono">comp.sys.mac.hardware</span>; <span class="mono">talk.religion.misc</span> vs <span class="mono">soc.religion.christian</span>). We use it as a controlled testbed to measure the marginal value of each step up the representational hierarchy: from sparse term statistics, to learned dense embeddings, to deep pretrained transformers, to billion-parameter instruction-tuned LLMs.
-  </p>
+  <div class="deck">What is each step up the representational hierarchy actually worth?</div>
+  <div class="byline">
+    <span class="by">By <strong style="color: var(--text); font-weight: 500;">Dan Waititu</strong></span>
+    <span class="dot"></span>
+    <span>HSLU NALAPRO · Spring 2026</span>
+  </div>
+
+  <div class="columns-2">
+    <p class="lede">
+      Twenty classes, several of them near-duplicates (<span class="mono">comp.sys.ibm.pc.hardware</span> vs <span class="mono">comp.sys.mac.hardware</span>; <span class="mono">soc.religion.christian</span> vs <span class="mono">talk.religion.misc</span>). We use 20 Newsgroups as a controlled testbed — sparse statistics, dense embeddings, pretrained transformers, billion-parameter LLMs — and measure what each rung up the ladder is worth.
+    </p>
+  </div>
 
   <div class="stepper">
     <div class="step q1"><div class="k">Q1</div><div class="v">Shallow MLP</div><div class="d">word2vec · TF-IDF · mean+max pool</div></div>
@@ -472,28 +682,28 @@
   <div class="bigstat">
     <div>
       <div class="big" id="bs-counts">18 846</div>
-      <div class="lab" style="margin-top:6px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mute);">documents · 20 classes · 1 student</div>
+      <div class="lab" style="margin-top:6px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mute);">docs · 20 classes</div>
     </div>
     <div style="height: 56px; width: 1px; background: var(--border);"></div>
     <div>
       <div class="big">5</div>
-      <div class="lab" style="margin-top:6px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mute);">methods compared end-to-end</div>
+      <div class="lab" style="margin-top:6px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mute);">methods compared</div>
     </div>
     <div style="height: 56px; width: 1px; background: var(--border);"></div>
     <div>
       <div class="big" id="bs-best">—</div>
-      <div class="lab" style="margin-top:6px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mute);">best macro-F1 reached</div>
+      <div class="lab" style="margin-top:6px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mute);">best macro-F1</div>
     </div>
   </div>
 </section>
 
 <!-- ===================================================================== -->
 <section id="dataset">
-  <div class="eyebrow">01 · The dataset</div>
-  <h2>20 Newsgroups, stripped of leakage.</h2>
-  <p>
-    <span class="mono">sklearn.datasets.fetch_20newsgroups(remove=("headers","footers","quotes"))</span> — without that flag the labels are trivially recoverable from message headers, so every classifier in this study sees only the body text.
-    The corpus is roughly class-balanced (377–600 docs per class in train), but document length is heavy-tailed: median ~40 tokens, p95 ~280, max above 6 700.
+  <div class="kicker"><span class="sec-no">II.</span> The dataset <span class="filed">Section A · Page 2</span></div>
+  <h2>20 Newsgroups, <em>stripped of leakage.</em></h2>
+  <div class="deck">Headers, footers and quoted replies leak the label. Strip them out and the baseline falls from tutorial-grade 90 % into the low 60s.</div>
+  <p class="lede">
+    <span class="mono">fetch_20newsgroups(remove=("headers","footers","quotes"))</span>. Roughly class-balanced (377–600 docs/class), heavy-tailed length: median ~40 tokens, p95 ~280, max above 6 700.
   </p>
 
   <div class="grid-4" id="dataset-tiles" style="margin-top: 18px;"></div>
@@ -512,15 +722,16 @@
   </div>
 
   <div class="callout" style="margin-top: 20px;">
-    <strong>Why this matters.</strong> Most published 20NG accuracy numbers leak through headers. Our stripped-text baselines start at a realistic ~63 % (word2vec) rather than the inflated 90 %+ you see in tutorial code — making the Q1→Q2→Q3 lift genuine, not spurious.
+    <strong>Why this matters.</strong> Stripped-text baselines start at ~63 % rather than the inflated 90 %+ in tutorial code — so every Q1→Q2→Q3 lift is genuine, not spurious.
   </div>
 </section>
 
 <!-- ===================================================================== -->
 <section id="q1">
-  <div class="eyebrow"><span class="chip q1"><span class="dot"></span>Question 1</span></div>
-  <h2>Shallow MLP · three representations.</h2>
-  <p>A single 2-layer MLP <span class="mono">(input → 256 → 20)</span> is held fixed across three input regimes, so any accuracy difference is attributable to the representation, not the classifier.</p>
+  <div class="kicker"><span class="sec-no">III.</span> Question 1 · Shallow MLP <span class="filed">Section B · Pages 3–4</span></div>
+  <h2>Shallow MLP, <em>three representations.</em></h2>
+  <div class="deck">One classifier, three inputs. Any accuracy difference is the representation.</div>
+  <p class="lede">A 2-layer MLP <span class="mono">(input → 256 → 20)</span>, held fixed across word2vec mean-pool, TF-IDF, and mean+max pooled word2vec. The classifier never moves; only the input does.</p>
 
   <div class="grid-2" style="margin-top: 12px;">
     <div class="card chart-card">
@@ -528,29 +739,30 @@
         <h3 style="margin:0">Accuracy &amp; macro-F1 by representation</h3>
       </div>
       <div id="chart-q1" class="chart" style="height: 320px;"></div>
-      <div class="figcap">TF-IDF leads the Q1 group. Word2vec mean-pool is competitive; concatenating max-pool actually hurts here — the max dimension is dominated by frequent high-magnitude tokens that wash out the topical signal.</div>
+      <div class="figcap">TF-IDF wins the group. Adding max-pool to mean-pool hurts: the max dimension is dominated by high-magnitude function tokens.</div>
     </div>
 
     <div class="card">
       <h3 style="margin-top:0">Trained vs untrained embeddings</h3>
       <img class="figure" src="assets/w2v_tsne_epoch1_vs_epoch20.png" alt="t-SNE of word2vec embeddings at 1 vs 20 epochs">
-      <div class="figcap">t-SNE projection of 500 tokens after 1 epoch (left) vs 20 epochs (right). Vocab size is identical (19 306) but topic clusters only emerge with training — this is the visual evidence that the lift in Q1b's classifier comes from the embedding, not the lexicon.</div>
+      <div class="figcap">t-SNE of 500 tokens at 1 epoch (left) vs 20 (right). Vocab is identical (19 306); topic clusters only emerge with training — the lift is the embedding, not the lexicon.</div>
     </div>
   </div>
 
   <h3>Design decisions</h3>
   <ul class="rationale">
-    <li><strong>Stopwords kept in for word2vec, removed for TF-IDF.</strong> Word2vec needs frequent function words to stabilise the co-occurrence signal inside the context window; TF-IDF is a sparse frequency representation, so stopwords there just dilute the topical evidence.</li>
-    <li><strong>Determinism via <span class="mono">workers=1</span> + <span class="mono">seed=42</span>.</strong> Gensim's multi-threaded training is non-deterministic; pinning to a single worker is the only way the 1-epoch vs 20-epoch comparison is meaningful.</li>
-    <li><strong>Mean+max pooling (Q1d) as a no-architecture-change probe.</strong> The spec required improving Q1 without touching the network. Concatenating element-wise max to mean doubles the input dimension but leaves the MLP head unchanged, so we isolate representation richness from capacity.</li>
+    <li><strong>Stopwords kept for word2vec, dropped for TF-IDF.</strong> Word2vec needs function words to stabilise the context window; TF-IDF doesn't.</li>
+    <li><strong>Determinism via <span class="mono">workers=1</span> + <span class="mono">seed=42</span>.</strong> Gensim's multi-threaded training is non-deterministic — the 1-vs-20-epoch comparison would otherwise be meaningless.</li>
+    <li><strong>Mean+max pool as a no-architecture-change probe.</strong> The spec required improving Q1 without touching the network. Doubling the input dim with max-pool isolates representation from capacity.</li>
   </ul>
 </section>
 
 <!-- ===================================================================== -->
 <section id="q2">
-  <div class="eyebrow"><span class="chip q2"><span class="dot"></span>Question 2</span></div>
-  <h2>BERT-base fine-tune.</h2>
-  <p>End-to-end fine-tune of <span class="mono">bert-base-uncased</span> using HuggingFace <span class="mono">Trainer</span>, with the same train/val indices as Q1 — so the lift is apples-to-apples, not the result of a luckier split.</p>
+  <div class="kicker"><span class="sec-no">IV.</span> Question 2 · BERT fine-tune <span class="filed">Section B · Page 5</span></div>
+  <h2>BERT-base, <em>fine-tuned end-to-end.</em></h2>
+  <div class="deck">110 M pretrained parameters, same val indices as Q1. The lift is real because the split is identical.</div>
+  <p class="lede">End-to-end fine-tune of <span class="mono">bert-base-uncased</span> via HuggingFace <span class="mono">Trainer</span>. Same <span class="mono">seed=42</span> as every other stage — apples to apples.</p>
 
   <div class="delta" style="margin-top: 14px;">
     <span class="lab">Q1 best (TF-IDF)</span>
@@ -565,28 +777,29 @@
     <div class="card">
       <h3 style="margin-top:0">Q2b · baseline confusion</h3>
       <img class="figure" src="assets/q2b_confusion_matrix.png" alt="Q2b confusion matrix">
-      <div class="figcap">Diagonal-heavy structure; remaining off-diagonal mass concentrates inside the <span class="mono">comp.*</span>, <span class="mono">talk.politics.*</span>, and <span class="mono">soc.religion / talk.religion</span> sibling clusters.</div>
+      <div class="figcap">Diagonal-heavy. Residual error concentrates inside the <span class="mono">comp.*</span>, politics, and religion sibling clusters.</div>
     </div>
     <div class="card">
       <h3 style="margin-top:0">Q2c · learning-rate sweep</h3>
       <img class="figure" src="assets/q2c_sweep_bars.png" alt="LR sweep bars">
-      <div class="figcap">Best LR: <span class="mono">5e-05</span> — the canonical fine-tuning rate for BERT. Larger values destabilise the pretrained weights; smaller values under-train in three epochs.</div>
+      <div class="figcap">Best LR: <span class="mono">5e-05</span> — the canonical BERT fine-tuning rate. Larger destabilises pretrained weights; smaller under-trains in three epochs.</div>
     </div>
   </div>
 
   <h3>Design decisions</h3>
   <ul class="rationale">
-    <li><strong>Tokenisation with <span class="mono">max_length=256</span>.</strong> Determined from Q2a's token-length histogram at roughly the 95th percentile — covers nearly all documents without paying for compute on the long-tail outliers.</li>
-    <li><strong>Index parity with Q1 (and downstream Q3).</strong> <span class="mono">data.train_val_split(seed=42)</span> is called once and reused, so when we compare to Q1 or feed into Q3 we are comparing on the <em>same</em> validation set.</li>
-    <li><strong>MPS-safe Trainer flags.</strong> <span class="mono">fp16=False · bf16=False · pin_memory=False</span> — Apple Silicon-friendly; load-best-on-macro-F1 (not loss) so a single bad-loss-but-good-F1 checkpoint is not lost.</li>
+    <li><strong><span class="mono">max_length=256</span>.</strong> ~95th percentile of token-length — covers nearly every document without paying for outliers.</li>
+    <li><strong>Index parity with Q1 and Q3.</strong> One <span class="mono">data.train_val_split(seed=42)</span> call, reused everywhere — same val set throughout.</li>
+    <li><strong>MPS-safe Trainer flags.</strong> <span class="mono">fp16=bf16=pin_memory=False</span>; load-best on macro-F1, not loss.</li>
   </ul>
 </section>
 
 <!-- ===================================================================== -->
 <section id="q3">
-  <div class="eyebrow"><span class="chip q3"><span class="dot"></span>Question 3</span></div>
-  <h2>MLM pretraining, then fine-tune.</h2>
-  <p>Two-stage pipeline: continue masked-language-model pretraining on the 20NG train corpus, then fine-tune with Q2b's hyperparameters held verbatim. The hyperparameter constancy is the experiment — anything that changes is attributable to the MLM stage.</p>
+  <div class="kicker"><span class="sec-no">V.</span> Question 3 · MLM then fine-tune <span class="filed">Section C · Page 6</span></div>
+  <h2>MLM pretraining, <em>then fine-tune.</em></h2>
+  <div class="deck">Two stages; Q2b's hyperparameters held verbatim in stage B. The only variable is the encoder init.</div>
+  <p class="lede">Continue MLM on the 20NG train corpus, then fine-tune with Q2b's hyperparameters held verbatim. Anything that moves is the MLM stage.</p>
 
   <div class="grid-3" style="margin-top: 18px;" id="q3-tiles"></div>
 
@@ -594,34 +807,35 @@
     <div class="card">
       <h3 style="margin-top:0">Stage A · MLM loss</h3>
       <img class="figure" src="assets/q3_mlm_loss.png" alt="MLM training loss curve">
-      <div class="figcap">Eval loss settles at ~2.04 → perplexity ≈ 7.71. The 90/10 split for MLM-eval is internal to the train corpus, so the downstream classification val set is never touched during this stage.</div>
+      <div class="figcap">Eval loss ~2.04, perplexity ≈ 7.71. The MLM-eval 90/10 split is internal to the train corpus; the classification val set is never touched.</div>
     </div>
     <div class="card">
       <h3 style="margin-top:0">Stage B · classification confusion (Q2b vs Q3)</h3>
       <img class="figure" src="assets/q3_vs_q2_confusion_side_by_side.png" alt="Side-by-side confusion matrices">
-      <div class="figcap">Patterns are visually almost indistinguishable. Domain-adaptive pretraining is real but marginal here — likely because the 20NG corpus is too small and topically too close to the generic English BERT was already trained on.</div>
+      <div class="figcap">Visually almost indistinguishable. DAPT is real but marginal here — the corpus is too small and too close to the English BERT already knows.</div>
     </div>
   </div>
 
   <h3>Design decisions</h3>
   <ul class="rationale">
-    <li><strong>Independent MLM-eval split.</strong> A 90/10 carve <em>inside</em> the training documents — the classification validation set is held out from MLM exposure to prevent indirect leakage.</li>
-    <li><strong>15 % masking rate, untuned.</strong> The original BERT default. The question we wanted to answer was "does DAPT help <em>at all</em>" — not "what is the optimal mask rate for 20NG" (that would be a separate experiment).</li>
-    <li><strong>Stage B = Q2b hyperparameters, verbatim.</strong> Same LR, batch size, sequence length, schedule. The only variable changed is the encoder initialisation.</li>
+    <li><strong>Independent MLM-eval split.</strong> 90/10 carve <em>inside</em> the training docs — the classification val set is held out from MLM exposure.</li>
+    <li><strong>15 % masking rate, untuned.</strong> BERT default. The question was "does DAPT help <em>at all</em>", not "what's the optimal mask rate".</li>
+    <li><strong>Stage B = Q2b hyperparameters, verbatim.</strong> Only the encoder init changes.</li>
   </ul>
 </section>
 
 <!-- ===================================================================== -->
 <section id="q4">
-  <div class="eyebrow"><span class="chip q4"><span class="dot"></span>Question 4</span></div>
-  <h2>Llama-3 · zero-shot and few-shot.</h2>
-  <p>A frozen <span class="mono">meta-llama/Llama-3.2-3B-Instruct</span> in 4-bit nf4 quantisation, prompted via the chat template. No gradients; classification by generative output parsed back to a label with substring + Levenshtein fallback.</p>
+  <div class="kicker"><span class="sec-no">VI.</span> Question 4 · Llama-3 prompting <span class="filed">Section D · Pages 7–8</span></div>
+  <h2>Llama-3, <em>zero-shot &amp; few-shot.</em></h2>
+  <div class="deck">3 B parameters, frozen, 4-bit. Classification by generated text — parsing is its own diagnostic.</div>
+  <p class="lede">Frozen <span class="mono">meta-llama/Llama-3.2-3B-Instruct</span> in 4-bit nf4, prompted via chat template. No gradients; output parsed back to a label with substring + Levenshtein fallback.</p>
 
   <div class="grid-2" style="margin-top: 14px;">
     <div class="card chart-card">
       <div class="head"><h3 style="margin:0">Demonstrations vs accuracy</h3></div>
       <div id="chart-q4" class="chart" style="height: 320px;"></div>
-      <div class="figcap">k=0 → k=1 → k=3 demonstrations per class. Few-shot more than doubles zero-shot accuracy, but even k=3 (60 demos in context) is well below Q2 — instruction-following alone does not close the gap a fine-tune does.</div>
+      <div class="figcap">k=0 → k=1 → k=3. Few-shot more than doubles zero-shot; even k=3 (60 demos in context) is well below fine-tuned BERT.</div>
     </div>
     <div class="card chart-card">
       <div class="head">
@@ -637,15 +851,16 @@
   </div>
 
   <div class="callout warn" style="margin-top: 20px;">
-    <strong>Honesty note.</strong> Q4 evaluates on a <em>stratified 200-document subset</em> of the test set (10 per class, seed 42). At ~2–3 s per document on a consumer GPU, the full 7 532-document test set would have taken ~6 hours per run — unreasonable for three configurations under a coursework deadline. The same 200-document subset is also evaluated for Q-bonus, giving a like-for-like comparison.
+    <strong>Honesty note.</strong> Q4 evaluates on a stratified 200-doc subset (10/class, seed 42). The full 7 532-doc test set would have been ~6 h per run. The same subset is reused for Q-bonus to keep the comparison like-for-like.
   </div>
 </section>
 
 <!-- ===================================================================== -->
 <section id="qbonus">
-  <div class="eyebrow"><span class="chip qb"><span class="dot"></span>Bonus</span></div>
-  <h2>QLoRA fine-tune of Llama-3.</h2>
-  <p>Same base model as Q4, now <em>trained</em>: LoRA adapters on the <span class="mono">{q,k,v,o}_proj</span> attention projections, classification head <span class="mono">score</span> trained in full precision via <span class="mono">modules_to_save</span>. A two-run sweep over rank and learning rate picks the winner by validation macro-F1.</p>
+  <div class="kicker"><span class="sec-no">VII.</span> Bonus · QLoRA fine-tune <span class="filed">Section D · Page 9</span></div>
+  <h2>QLoRA fine-tune <em>of Llama-3.</em></h2>
+  <div class="deck">Same base as Q4 — this time, allowed to train.</div>
+  <p class="lede">LoRA on <span class="mono">{q,k,v,o}_proj</span>; classification head <span class="mono">score</span> trained in full precision via <span class="mono">modules_to_save</span>. A two-run sweep over rank and LR picks the winner by val macro-F1.</p>
 
   <div class="grid-2" style="margin-top: 14px;">
     <div class="card chart-card">
@@ -656,29 +871,30 @@
     <div class="card chart-card">
       <div class="head"><h3 style="margin:0">Winner · final test metrics</h3></div>
       <div id="chart-qb-final" class="chart" style="height: 280px;"></div>
-      <div class="figcap">Evaluated twice: on the full 7 532-document test set (comparable with Q1/Q2/Q3) and on the 200-document subset (byte-identical to Q4, so the comparison with zero/few-shot is exact).</div>
+      <div class="figcap">Evaluated twice: full 7 532-doc test set (vs Q1/Q2/Q3) and the 200-doc subset (byte-identical to Q4).</div>
     </div>
   </div>
 
   <div class="card" style="margin-top: 18px;">
     <h3 style="margin-top:0">Per-class delta vs Q4 k=3</h3>
     <img class="figure" src="assets/qbonus_per_class_delta.png" alt="Per-class F1 delta between QLoRA and Q4 k=3 few-shot">
-    <div class="figcap">F1 lift class-by-class on the 200-document subset. Sibling classes (computer-hardware family, religion / politics families) see the largest gains — exactly where prompting struggled most.</div>
+    <div class="figcap">Per-class F1 lift on the 200-doc subset. Sibling classes (computer-hardware, religion, politics families) gain the most — exactly where prompting struggled.</div>
   </div>
 
   <h3>Design decisions</h3>
   <ul class="rationale">
-    <li><strong>LoRA on attention projections only.</strong> The standard and well-validated locus for parameter-efficient LM adaptation — rank-16 / rank-32 updates are enough to specialise attention without retraining the full 3 B parameters.</li>
-    <li><strong><span class="mono">modules_to_save=['score']</span>.</strong> The classification head is freshly initialised on top of a generative LM; if it is wrapped by LoRA it cannot move enough to learn — a silent failure mode where loss looks fine but the model never actually classifies. Saving it in full precision is the fix.</li>
-    <li><strong>Two evaluations on the same winner.</strong> Full test → comparable with Q1/Q2/Q3. Q4 subset → comparable with zero/few-shot. One model, two reference frames.</li>
+    <li><strong>LoRA on attention projections only.</strong> Standard and well-validated locus — rank 16 / 32 specialises attention without retraining 3 B parameters.</li>
+    <li><strong><span class="mono">modules_to_save=['score']</span>.</strong> If the freshly-initialised head is wrapped by LoRA, it cannot move enough to learn — loss looks fine, model never classifies. Saving in full precision is the fix.</li>
+    <li><strong>Two evaluations, one winner.</strong> Full test → vs Q1/Q2/Q3. Q4 subset → vs zero/few-shot.</li>
   </ul>
 </section>
 
 <!-- ===================================================================== -->
 <section id="compare">
-  <div class="eyebrow">02 · The story</div>
-  <h2>Cross-question comparison.</h2>
-  <p>All five methods on one axis. The categorical palette is the same one used throughout — colour identifies the question family at a glance.</p>
+  <div class="kicker"><span class="sec-no">VIII.</span> The story so far <span class="filed">Centerfold · Pages 10–11</span></div>
+  <h2>All five methods, <em>on one axis.</em></h2>
+  <div class="deck">One chart, the categorical palette used throughout. Colour for the question family; height for the finding.</div>
+  <p class="lede">The headline arc, in one frame.</p>
 
   <div class="card chart-card" style="margin-top: 14px;">
     <div class="head">
@@ -690,22 +906,23 @@
     </div>
     <div id="chart-compare" class="chart" style="height: 460px;"></div>
     <div class="figcap">
-      Q1, Q2, Q3, and Q-bonus (full) report on the complete 7 532-doc test set; Q4 and Q-bonus (subset) report on the matched 200-doc subset. The 200-doc subset is easier on average (stratified, 10/class), which inflates Q-bonus-subset relative to its full-test score by ~5 points — the more honest direct rival to Q4 is the <em>subset</em> bar.
+      Q1, Q2, Q3, Q-bonus (full) on the 7 532-doc test set; Q4 and Q-bonus (subset) on the matched 200-doc subset. The subset is ~5 points easier — so the honest comparison with Q4 is the <em>subset</em> bar.
     </div>
   </div>
 
   <div class="callout" style="margin-top: 18px;">
     <strong>What the chart says.</strong>
-    Representation matters more than scale. The jump from sparse word statistics (Q1c) to a 110-million-parameter pretrained encoder (Q2) is large (~2 pts). Continued in-domain pretraining (Q3) is essentially flat — the corpus is too small for DAPT to pay off. A 3-billion-parameter frozen LLM (Q4) is <em>worse</em> than a fine-tuned BERT-base. Once the LLM is given the chance to actually train via QLoRA, it overtakes everything — but the gap to fine-tuned BERT is much smaller than its parameter count would suggest.
+    Representation matters more than scale. Q1c → Q2 is large; Q3 is flat (corpus too small for DAPT). A frozen 3 B LLM is <em>worse</em> than fine-tuned BERT; once it's allowed to train via QLoRA, it overtakes everything — but by far less than parameter count would suggest.
   </div>
 </section>
 
 <!-- ===================================================================== -->
 <section id="lessons">
-  <div class="eyebrow">03 · Reflection</div>
+  <div class="kicker"><span class="sec-no">IX.</span> Editorial · Lessons learnt <span class="filed">Op-Ed · Page 12</span></div>
   <h2>Lessons <em>learnt.</em></h2>
+  <div class="deck">Six findings, one consistent surprise. The places parameter count was supposed to substitute for engineering — it didn't.</div>
   <p class="pullquote">
-    Seven experiments. <em>One consistent surprise:</em> every place I expected parameter count to substitute for engineering, it didn&rsquo;t — and every place I treated engineering details as bookkeeping, they decided the result.
+    Seven experiments, <em>one consistent surprise.</em> Parameter count never substituted for engineering; engineering details I'd dismissed as bookkeeping kept deciding the result.
   </p>
 
   <div class="lessons-grid">
@@ -714,7 +931,7 @@
       <div class="ix">01 · The headline</div>
       <h3>Representation, <em>not scale</em>, did the work.</h3>
       <p>
-        110 million parameters of pretrained BERT outscored a frozen 3-billion-parameter Llama-3 by ~35 absolute points on the matched 200-document subset. Even with QLoRA, the 3B-parameter model only edges past BERT-base by ~4 points on the full test set. The throughline of the project: task-specific gradient flow beat both context length and parameter count — for a small, well-defined classification problem, the right inductive bias matters more than raw capacity.
+        110 M parameters of pretrained BERT beat a frozen 3 B Llama-3 by ~35 points on the matched subset. Even QLoRA'd, the 3 B model only edges BERT by ~4 points. Task-specific gradient flow beat both context length and parameter count.
       </p>
       <div class="chips">
         <span class="chip q2"><span class="dot"></span>Q2 · BERT</span>
@@ -727,7 +944,7 @@
       <div class="ix">02</div>
       <h3>In-domain MLM is <em>not</em> a free lunch.</h3>
       <p>
-        Continued masked-language-model pretraining on the 20NG corpus lifted Q2b → Q3 by less than one point — well inside seed noise. 11 000 documents is too small and too close to generic English for DAPT to pay off. The canonical paper-claim only holds at a different order of magnitude.
+        Continued MLM lifted Q2b → Q3 by less than one point — well inside seed noise. 11 k documents is too small and too close to generic English. The paper-claim holds at a different order of magnitude.
       </p>
       <div class="chips"><span class="chip q3"><span class="dot"></span>Q3</span></div>
     </article>
@@ -736,7 +953,7 @@
       <div class="ix">03</div>
       <h3>Classification heads <em>fail quietly</em>.</h3>
       <p>
-        QLoRA on <span class="mono">{q,k,v,o}_proj</span> with no <span class="mono">modules_to_save</span> on the freshly-initialised <span class="mono">score</span> head trains, logs sensible loss, and never actually classifies. The framework will not warn you. Framework defaults are not safe defaults for novel head wiring.
+        QLoRA without <span class="mono">modules_to_save=['score']</span> trains, logs sensible loss, and never classifies. The framework gives no warning. Defaults are not safe defaults for novel head wiring.
       </p>
       <div class="chips"><span class="chip qb"><span class="dot"></span>Q-bonus</span></div>
     </article>
@@ -745,7 +962,7 @@
       <div class="ix">04</div>
       <h3>Free wins exist <em>if you look</em>.</h3>
       <p>
-        Concatenating element-wise max-pool to mean-pool doubled the input representation with zero new parameters and zero architecture change. The spec demanded improvement &ldquo;without changing the network&rdquo; — engineering can substitute for capacity when the bottleneck is representation, not learning.
+        Concatenating max-pool to mean-pool doubled the input with zero new parameters. Engineering can substitute for capacity when the bottleneck is representation, not learning.
       </p>
       <div class="chips"><span class="chip q1"><span class="dot"></span>Q1d</span></div>
     </article>
@@ -754,7 +971,7 @@
       <div class="ix">05</div>
       <h3>Identical splits, <em>or nothing</em>.</h3>
       <p>
-        The Q1 → Q2 → Q3 lifts mean what they claim only because every stage calls <span class="mono">data.train_val_split(seed=42)</span> verbatim and reuses the indices. Without that contract, &ldquo;Q2 beats Q1 by two points&rdquo; is indistinguishable from &ldquo;Q2 got luckier&rdquo;.
+        Q1 → Q2 → Q3 lifts mean what they claim only because every stage reuses <span class="mono">train_val_split(seed=42)</span>. Without that contract, &ldquo;Q2 beats Q1&rdquo; is indistinguishable from &ldquo;Q2 got luckier.&rdquo;
       </p>
       <div class="chips"><span class="chip q1"><span class="dot"></span>Q1</span><span class="chip q2"><span class="dot"></span>Q2</span><span class="chip q3"><span class="dot"></span>Q3</span></div>
     </article>
@@ -763,7 +980,7 @@
       <div class="ix">06</div>
       <h3>Disclosure beats <em>laundering</em>.</h3>
       <p>
-        The Q4 200-doc subset is easier on average than the full test set — visible in the ~5-point gap between Q-bonus full and Q-bonus subset evaluations of the <em>same</em> adapter. Stating the limitation up front protects the comparison; hiding it would have quietly inflated every Q4 number by ~5 points.
+        The Q4 subset is ~5 points easier than the full test set — visible in the gap between Q-bonus full vs subset of the same adapter. Stating it up front protects the comparison.
       </p>
       <div class="chips"><span class="chip q4"><span class="dot"></span>Q4</span><span class="chip qb"><span class="dot"></span>Q-bonus</span></div>
     </article>
@@ -773,31 +990,41 @@
 
 <!-- ===================================================================== -->
 <section id="future">
-  <div class="eyebrow">04 · Next steps</div>
+  <div class="kicker"><span class="sec-no">X.</span> Coming in the next issue <span class="filed">Back page · Page 16</span></div>
   <h2>Future <em>work.</em></h2>
+  <div class="deck">Four leads, four follow-up experiments. Each one tests a hypothesis raised but not settled by the work in this issue.</div>
 
   <div class="grid-2" style="margin-top: 12px;">
     <div class="card">
       <h3 style="margin-top:0">Full-test Llama evaluation</h3>
-      <p>Run the Q4 prompts and the Q-bonus winner over the complete 7 532-doc test set. With batched generation and KV-cache reuse this is tractable on an A100, and it would remove the lingering uncertainty about the 200-doc subset being easier than the full distribution.</p>
+      <p>Re-run Q4 and the Q-bonus winner over the 7 532-doc test set. Removes the lingering uncertainty around the 200-doc subset.</p>
     </div>
     <div class="card">
       <h3 style="margin-top:0">Larger MLM corpus for Q3</h3>
-      <p>The DAPT signal flatlined likely because 11 k documents is too small. A natural extension is concatenating 20NG with an external news / forum corpus before the MLM stage — does the lift appear once the LM has actually seen new vocabulary?</p>
+      <p>Concatenate 20NG with an external news / forum corpus before the MLM stage. Does the DAPT lift appear once the LM sees new vocabulary?</p>
     </div>
     <div class="card">
       <h3 style="margin-top:0">Instruction-tuned Llama-3.1-8B</h3>
-      <p>The 3 B model already comes within ~5 points of fine-tuned BERT once QLoRA'd. The 8 B variant on the same training budget should close that gap further — a useful data point on the parameter-vs-fine-tune trade-off.</p>
+      <p>The 3 B model already comes within ~5 points of fine-tuned BERT once QLoRA'd. Same training budget, larger model — does the gap close?</p>
     </div>
     <div class="card">
       <h3 style="margin-top:0">Error analysis on sibling classes</h3>
-      <p>Every method's residual error concentrates in the same three clusters (<span class="mono">comp.*</span> family, <span class="mono">talk.politics.*</span>, religion). A focused study — examples, attention probes, prompt re-engineering — would clarify whether the failure is in the representation or in the labels themselves (some labels arguably overlap by construction).</p>
+      <p>Every method's residual error concentrates in the same three clusters (<span class="mono">comp.*</span>, politics, religion). A focused study would clarify whether the failure is representational or label-overlap.</p>
     </div>
   </div>
 
   <footer>
-    <div>HSLU · NALAPRO · Spring 2026 · <a href="https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro">W&amp;B project</a> · Code on <span class="mono">ft-refined</span></div>
-    <div style="margin-top: 6px;">All charts rendered from the project's actual notebook outputs; this dashboard is a static, offline artifact.</div>
+    <div style="text-align: center; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--text-dim); margin-bottom: 14px; letter-spacing: 0; text-transform: none;">
+      &mdash; <span style="color: var(--accent);">END OF ISSUE</span> &mdash;
+    </div>
+    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase;">
+      <span>The Newsgroups Review · Vol. I, No. 1</span>
+      <span>HSLU NALAPRO · Spring 2026</span>
+      <span>Set in Instrument Serif &amp; IBM Plex</span>
+    </div>
+    <div style="margin-top: 14px; text-align: center; font-style: italic; font-family: var(--serif); font-size: 14px; color: var(--text-mute);">
+      Every chart drawn from the project&rsquo;s own notebook outputs. A static, offline artifact &mdash; the only thing standing between this deck and a flaky lecture-hall network is one vendored JavaScript file. Code on <span class="mono">ft-refined</span> &middot; <a href="https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro">W&amp;B project</a>.
+    </div>
   </footer>
 </section>
 
@@ -876,10 +1103,10 @@ function renderProblemBigStat(d) {
 function renderDataset(d) {
   const ds = d.dataset;
   const tiles = [
-    { label: 'Train docs',       value: (ds.train_docs ?? '—').toLocaleString('en-US').replace(/,/g, ' '), sub: 'stratified train' },
-    { label: 'Test docs',        value: (ds.test_docs  ?? '—').toLocaleString('en-US').replace(/,/g, ' '), sub: 'held-out 20-newsgroups by-date split' },
-    { label: 'Classes',          value: ds.n_classes ?? 20, sub: 'topic categories' },
-    { label: 'Raw vocab',        value: (ds.vocab_raw ?? '—').toLocaleString('en-US').replace(/,/g, ' '), sub: 'distinct tokens after preprocessing' },
+    { label: 'Train docs',  value: (ds.train_docs ?? '—').toLocaleString('en-US').replace(/,/g, ' '), sub: 'stratified' },
+    { label: 'Test docs',   value: (ds.test_docs  ?? '—').toLocaleString('en-US').replace(/,/g, ' '), sub: 'held-out by-date split' },
+    { label: 'Classes',     value: ds.n_classes ?? 20, sub: 'topic categories' },
+    { label: 'Raw vocab',   value: (ds.vocab_raw ?? '—').toLocaleString('en-US').replace(/,/g, ' '), sub: 'after preprocessing' },
   ];
   document.getElementById('dataset-tiles').innerHTML = tiles.map(t =>
     `<div class="tile"><div class="label">${t.label}</div><div class="value">${t.value}</div><div class="sub">${t.sub}</div></div>`
@@ -929,10 +1156,10 @@ function renderQ3(d) {
   const q2 = d.q2.q2b.accuracy;
   const q3 = d.q3.classification.accuracy;
   const tiles = [
-    { label: 'MLM perplexity',         value: d.q3.mlm.perplexity?.toFixed(2) ?? '—', sub: 'exp(eval_loss) on held-out MLM split' },
-    { label: 'Q3 classification acc',  value: pct(q3),  sub: 'after MLM → fine-tune' },
-    { label: 'Δ vs Q2b',               value: ((q3 - q2) * 100).toFixed(2) + ' pts',
-       sub: q3 - q2 > 0 ? 'small positive — marginal lift' : 'flat — DAPT signal absent' },
+    { label: 'MLM perplexity',  value: d.q3.mlm.perplexity?.toFixed(2) ?? '—', sub: 'held-out MLM split' },
+    { label: 'Classification acc', value: pct(q3),  sub: 'after MLM → fine-tune' },
+    { label: 'Δ vs Q2b',        value: ((q3 - q2) * 100).toFixed(2) + ' pts',
+       sub: q3 - q2 > 0 ? 'marginal lift' : 'flat — DAPT absent' },
   ];
   document.getElementById('q3-tiles').innerHTML = tiles.map(t =>
     `<div class="tile accent"><div class="label">${t.label}</div><div class="value">${t.value}</div><div class="sub">${t.sub}</div></div>`
@@ -996,7 +1223,7 @@ function renderQ4(d) {
     });
   });
   document.getElementById('q4-invalid').innerHTML =
-    `Invalid label-parse rate · zero-shot <span class="mono">${pct(d.q4.zero_shot.invalid_rate)}</span> · k=1 <span class="mono">${pct(d.q4.few_shot_1pc.invalid_rate)}</span> · k=3 <span class="mono">${pct(d.q4.few_shot_3pc.invalid_rate)}</span>. Even k=3 occasionally produces an off-list label — the diagnostic that distinguishes instruction-following failures from genuine misclassifications.`;
+    `Invalid-parse rate · zero <span class="mono">${pct(d.q4.zero_shot.invalid_rate)}</span> · k=1 <span class="mono">${pct(d.q4.few_shot_1pc.invalid_rate)}</span> · k=3 <span class="mono">${pct(d.q4.few_shot_3pc.invalid_rate)}</span>. The diagnostic separating instruction-following failures from genuine misclassifications.`;
 }
 
 /* ---------- Q-bonus sweep + final ---------- */
@@ -1023,7 +1250,7 @@ function renderQbonus(d) {
     legend: { ...BASE_LAYOUT.legend, orientation: 'h', y: 1.18, x: 0 },
   }, PLOT_CONFIG);
   document.getElementById('qb-sweep-cap').innerHTML =
-    `Winner: <span class="mono">${sweep.winner}</span>. Rank 16 with the slightly higher LR (2e-4) edges out rank 32 with LR 1e-4 — adapter capacity is not the bottleneck at this corpus size.`;
+    `Winner: <span class="mono">${sweep.winner}</span>. Rank 16 / LR 2e-4 edges rank 32 / LR 1e-4 — adapter capacity isn't the bottleneck here.`;
 
   const final = [
     { label: 'Full test set (n=7 532)', acc: d.qbonus.full_test.accuracy, f1: d.qbonus.full_test.macro_f1 },
