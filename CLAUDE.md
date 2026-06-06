@@ -1,0 +1,158 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project context
+
+HSLU NLP module ("NALAPRO") graded project. Single-student repo — see `project_description/NALAPRO Project.pdf` for the authoritative spec. Submission deadline: **EOD 2026-06-06**. Grading: 30% code, 30% report, 40% presentation.
+
+The project is a sequence of four experiments on the **20 Newsgroups** dataset (`sklearn.datasets.fetch_20newsgroups`):
+
+1. **Q1** — Two-layer MLP (Linear → ReLU → Linear) trained with three input representations and one extra experiment:
+   - (a) preprocessing
+   - (b) word2vec embeddings (compare 1-epoch vs many-epoch embedding spaces)
+   - (c) TF-IDF inputs, compared against (b)
+   - (d) one self-designed experiment that improves results without changing the network
+2. **Q2** — Fine-tune `bert-base` on the classification task; compare to Q1.
+3. **Q3** — First do MLM pretraining on the corpus, then fine-tune for classification; compare to Q2.
+4. **Q4** — Zero-shot and few-shot classification with Llama-3.
+
+Each question lives on its own branch, named `ft-qn-<n>` (current: `ft-qn-1`). Keep the four experiments isolated so they can be presented and compared independently.
+
+## Hard constraints from the spec
+
+These come from the assignment PDF and must be respected when generating code or docs:
+
+- **Do not commit the dataset.** It is fetched at runtime via `fetch_20newsgroups`.
+- **Track experiments with Weights & Biases or MLflow.** The final report and the code's top-of-file docstring must include the W&B/MLflow link.
+- **Cite any third-party code** copied or adapted into the repo.
+- **Disclose AI tool usage** (including Claude Code) in the report's "tools used" section.
+- The report is a separate scientific write-up — no code in it. Plots/graphs and cross-experiment comparison are required.
+
+## Tooling
+
+- Python **3.13** (pinned in `.python-version`). Managed with `uv`; lock file is `uv.lock` (committed).
+- Add a dependency: `uv add <pkg>` (or `uv add --dev <pkg>` for test-only).
+- Run the test suite: `uv run pytest` (37 tests, ~7s incl. the slow data-fetch ones).
+  - Single file / test: `uv run pytest tests/test_train.py` or `uv run pytest tests/test_train.py::test_name`.
+  - Skip the network/training-heavy ones: `uv run pytest -m "not slow"`. Run only the slow ones: `-m slow`.
+  - Parallelize: `uv run pytest -n auto` (pytest-xdist is in the dev group).
+- Open the notebooks: `uv run jupyter lab`.
+- One-time setup before first notebook run: `uv run python scripts/setup_nltk.py` (downloads NLTK English stopwords).
+
+## Repo layout (Q1)
+
+```
+src/nlp_project/   # reusable package: data, embeddings, vectorizers, model, train, eval, viz
+tests/             # pytest suite (slow tests gated by -m slow)
+scripts/           # one-time setup scripts (e.g. NLTK download)
+notebooks/         # q1a–q1d notebooks; thin wrappers around src/nlp_project
+figures/           # static plots referenced by the report (gitkeep'd; outputs gitignored)
+models/            # word2vec checkpoints (gitignored)
+docs/superpowers/  # spec and implementation plan for Q1
+```
+
+## Architecture notes
+
+A few things span multiple files and are easier to internalize up front than to rediscover:
+
+- **Package vs. notebook split.** All non-trivial logic lives in `src/nlp_project/`. Notebooks are thin orchestrators — they wire functions together, log to W&B, and save figures. New logic goes in the package with a test; do **not** grow logic inside `.ipynb` cells.
+- **Determinism is centralized.** `nlp_project.set_seed()` (in `src/nlp_project/__init__.py`) is the single entry point that seeds Python `random`, NumPy, `PYTHONHASHSEED`, and PyTorch from `SEED = 42`. `tests/conftest.py` runs it via an `autouse` fixture, so every test starts from the same RNG state. Word2vec has its own `seed=` kwarg (passed explicitly in `embeddings.train_word2vec`) and is pinned to `workers=1` because gensim's multi-threaded training is non-deterministic — required for the 1-epoch vs many-epoch comparison to be meaningful.
+- **Two non-obvious preprocessing gotchas** baked into `data.py` / `embeddings.py`:
+  1. `load_20ng(remove=True)` is the default and the *correct* setting — leaving headers/footers/quotes in leaks the label (spec §3). Don't flip this without a good reason.
+  2. `preprocess(..., drop_stopwords=False)` for word2vec input; `drop_stopwords=True` for TF-IDF / classifier input. Word2vec learns better when frequent function words remain in the context window.
+- **Training loop is intentionally hand-rolled** (`train.py`) — no Lightning/Trainer. It does early stopping on val loss with `patience=5` and restores best-epoch weights before returning. `wandb_run` is optional so tests can call `train(...)` without a W&B session.
+
+## Q1 status
+
+Foundation package + tests are in place on `ft-qn-1`. Notebooks are drafted but not executed — they need the user's W&B credentials and a few minutes of CPU to run. To run them:
+
+1. `wandb login` (one-time, uses your W&B account).
+2. `uv run jupyter lab` and execute Q1a → Q1b → Q1c → Q1d in order.
+3. Q1d's "comparison table" cell needs the accuracy/F1 numbers from Q1b and Q1c pasted in before re-running.
+4. Paste the resulting W&B project URL into the line below.
+
+- W&B project for Q1 runs: <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
+
+## Q2 status
+
+`ft-qn-2` branch. Foundation package + tests are in place; notebooks scaffolded but not executed (W&B credentials + MPS compute required). Q2 uses HuggingFace `Trainer` (not the hand-rolled Q1 loop) — see `docs/superpowers/plans/2026-05-15-q2-bert-finetune.md` for the design rationale.
+
+- New modules: `src/nlp_project/bert_data.py` (tokenization + tri-split builder; reuses `data.train_val_split(seed=42)` for Q1↔Q2 val-index parity) and `src/nlp_project/bert_train.py` (HF Trainer wrapper with MPS-safe flags, encoder-freeze for the linear probe).
+- New tests: `tests/test_bert_data.py`, `tests/test_bert_train.py` (full suite at 55+ green).
+- `eval.py` refactored: `metrics_from_predictions(y_true, y_pred, label_names)` is now the single source of truth for accuracy/macro-F1/per-class F1/CM; both Q1 and Q2 use it.
+
+To run the Q2 notebooks:
+
+1. `wandb login` (one-time, same project as Q1).
+2. `uv run jupyter lab` and execute Q2a → Q2b → Q2c → Q2d in order.
+3. Q2a picks `max_length` from the token-length histogram (default 256).
+4. Q2c writes its sweep to `models/q2_results/q2c_sweep.json`; Q2d reads it.
+5. If notebooks need to be regenerated from `scripts/build_q2_notebooks.py`, do that *before* re-executing — running the script overwrites the executed `.ipynb`s.
+
+- W&B project for Q2 runs: same as Q1 (group `q2`) — <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
+
+## Q3 status
+
+`ft-qn-3` branch. Foundation package + tests are in place; the single notebook is scaffolded but not executed (W&B credentials + MPS compute required, ~45–90 min total). Q3 runs a two-stage pipeline: domain-adaptive MLM pretraining on the 20NG train texts, then classification fine-tune from the resulting checkpoint using Q2b's hyperparameters verbatim — see `docs/superpowers/plans/2026-05-18-q3-mlm-pretrain.md` for the design rationale.
+
+- New module: `src/nlp_project/mlm_pretrain.py` — `build_mlm_dataset`, `make_mlm_training_args`, `run_mlm_pretrain` (HF Trainer wrapper around `BertForMaskedLM` + `DataCollatorForLanguageModeling`, MPS-safe flags, internal 90/10 MLM-eval split independent of the classification val set).
+- New tests: `tests/test_mlm_pretrain.py` (4 fast + 1 slow smoke, all green).
+- Stage B reuses `bert_train.run_finetune` verbatim — only the encoder init changes vs Q2b.
+
+To run the Q3 notebook:
+
+1. `wandb login` (one-time, same project as Q1/Q2).
+2. `uv run jupyter lab notebooks/q3_mlm_then_finetune.ipynb`.
+3. Execute all cells top to bottom. Stage A (MLM) ≈ 30–60 min on MPS; Stage B (classification) ≈ 15–30 min.
+4. Stage A writes `models/q3_results/mlm_ckpt/` (gitignored) + `q3_pretrain_log.json`. Stage B writes `q3_finetune_results.json`. Section 5 reads `models/q2_results/q2b_baseline.json` for the comparison plots.
+5. If the notebook needs to be regenerated from `scripts/build_q3_notebook.py`, do that *before* re-executing — running the script overwrites the executed `.ipynb`.
+
+- W&B project for Q3 runs: same as Q1/Q2 (group `q3`) — <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
+
+## Q4 status
+
+`ft-q-4` branch. Foundation package + tests are in place; the single notebook is scaffolded but not executed (CUDA GPU + Llama-3 weights required, ~1 hour total). Q4 evaluates a frozen `meta-llama/Llama-3.2-3B-Instruct` (4-bit nf4 via `bitsandbytes`) under three prompt conditions — see `docs/superpowers/plans/2026-05-20-q4-llama-zero-few-shot.md` if/when a long-form design doc is written; for now the plan lives at `/Users/dan/.claude/plans/answer-the-4th-question-expressive-lamport.md`.
+
+- New module: `src/nlp_project/llama_classify.py` — `load_llama`, `build_prompt`, `select_demos`, `classify_one`, `classify_batch`. 4-bit nf4 on CUDA + bf16/fp32 fallback elsewhere; greedy decoding; generative-output label parsing with substring + Levenshtein fallback and an `invalid_rate` diagnostic.
+- New tests: `tests/test_llama_classify.py` (8 fast + 1 slow smoke).
+- New optional extra in `pyproject.toml`: `[project.optional-dependencies] llm = ["bitsandbytes>=0.43"]`. Install with `uv sync --extra llm` on a CUDA host. macOS dev box should keep using plain `uv sync` (bitsandbytes has no macOS wheel).
+- Q4 runs on a **stratified 200-doc subsample** of the test set (10/class, seed 42) — 7 532 docs at ~2–3 s/doc would be unreasonable. This is a deliberate limitation, disclosed in the discussion section.
+
+To run the Q4 notebook:
+
+1. (Local 3060) `uv sync --extra llm`; `wandb login`; `huggingface-cli login` (Llama-3.2 is gated — request access on the model page first).
+2. (Colab) open the notebook; cell 1 installs everything, clones the repo, and prompts for both logins interactively.
+3. `uv run jupyter lab notebooks/q4_llama_zero_few_shot.ipynb` (local) or open in Colab.
+4. Execute all cells top to bottom. Three runs (zero-shot, k=1/class, k=3/class) ≈ 10/15/25 min on the 3060 respectively.
+5. Outputs land in `models/q4_results/q4_{zero_shot,few_shot_1pc,few_shot_3pc}.json` and `figures/q4_*.png`. Section 9 reads `models/q2_results/q2b_baseline.json` for the comparison plot.
+6. If the notebook needs to be regenerated from `scripts/build_q4_notebook.py`, do that *before* re-executing — running the script overwrites the executed `.ipynb`.
+
+- W&B project for Q4 runs: same as Q1/Q2/Q3 (group `q4`) — <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
+
+## Q-bonus status
+
+`ft-bonus` branch. **Bonus task**: QLoRA fine-tune of Llama-3.2-3B-Instruct on 20 Newsgroups, evaluated on the full test set *and* the Q4 200-doc subset. Self-contained Colab notebook scaffolded but not executed (Colab A100 + Llama-3 weights required, ~70-90 min wall-clock).
+
+- The notebook (`notebooks/qbonus_llama_qlora_finetune.ipynb`) is **self-contained** — no imports from `src/nlp_project/`. Every helper (seeding, data load, train/val split, metrics, plotting, dataset wrapper) is inlined so the notebook runs on Colab without cloning the repo. See `scripts/build_qbonus_notebook.py` for the builder.
+- Approach: `LlamaForSequenceClassification` (4-bit nf4 base) + LoRA on `{q,k,v,o}_proj` with `modules_to_save=['score']` (the freshly-initialised classification head needs full-precision training, not LoRA — most common silent-failure mode for QLoRA-classification).
+- Two-run sweep: `r=16, lr=2e-4` (baseline) and `r=32, lr=1e-4` (higher capacity, lower LR); winner picked by val macro-F1.
+- Two final evals on the winning adapter: full 7 532-doc test set (vs Q1/Q2/Q3) and the byte-identical Q4 200-doc subset (vs zero/few-shot).
+
+To run the Q-bonus notebook:
+
+1. Open `notebooks/qbonus_llama_qlora_finetune.ipynb` on a Colab A100 (or local 24 GB+ CUDA box).
+2. Cell 1 installs runtime deps (`transformers, accelerate, bitsandbytes, peft, wandb, ...`) and prompts for both HF and W&B logins. Llama-3.2 is gated — request access on the model page first.
+3. Execute all cells top to bottom. Two LoRA runs ≈ 30-35 min each on A100; two final evals ≈ 5 min.
+4. Outputs land in `models/qbonus_results/qbonus_qlora_{full_test,q4subset}.json` + `qbonus_sweep_summary.json`, and `figures/qbonus_{confusion_full,comparison_bars,per_class_delta}.png`. Section 14 reads `models/q4_results/q4_*.json` (and optionally Q2/Q3 JSONs) for the cross-question comparison plot.
+5. If the notebook needs to be regenerated from `scripts/build_qbonus_notebook.py`, do that *before* re-executing — running the script overwrites the executed `.ipynb`.
+
+- W&B project for Q-bonus runs: same as Q1/Q2/Q3/Q4 (group `qbonus`) — <https://wandb.ai/danwwaititu-hochschule-luzern/hslu-nalapro?nw=nwuserdanwwaititu>
+
+## Presentation dashboard
+
+Self-contained static HTML deck at `presentation/index.html` — open directly in a browser (no server, no Python process). Built to run reliably offline during the 20-minute live talk; arrow keys navigate sections, every Plotly chart has hover tooltips, and the cross-question comparison chart has an accuracy / macro-F1 toggle for Q&A.
+
+- Data source: `presentation/data/dashboard.json`, generated by `uv run python scripts/build_dashboard_data.py`. The extractor pulls Q1/Q2/Q3 scalars from executed notebook cell outputs and Q4 / Q-bonus arrays from `models/q4_results/*.json` + `models/qbonus/*.json` — re-run it whenever any of those upstream files change.
+- Plotly is vendored at `presentation/vendor/plotly.min.js` (v2.35.2) so the deck survives a flaky lecture-hall network.
+- Referenced PNG figures live in `presentation/assets/` (copied from `figures/`); the dashboard does not reach back into `figures/` at runtime.

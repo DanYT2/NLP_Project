@@ -1,0 +1,4 @@
+experiment,accuracy,macro_f1
+Q1b — word2vec mean-pool,0.6321,0.6098
+Q1c — TF-IDF,0.6964,0.6895
+Q1d — word2vec mean+max-pool,0.6201540095592141,0.6004367579565738
